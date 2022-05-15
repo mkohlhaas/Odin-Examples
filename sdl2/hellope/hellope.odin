@@ -124,8 +124,9 @@ init_sdl :: proc() -> (ok: bool) {
 	}
 
 	ctx.renderer = sdl2.CreateRenderer(ctx.window, -1, {.ACCELERATED, .PRESENTVSYNC})
-	if ctx.surface == nil {
+	if ctx.renderer == nil {
 		log.errorf("sdl2.CreateRenderer failed.")
+    log.errorf(string(sdl2.GetError()))
 		return false
 	}
 
@@ -199,6 +200,7 @@ init_resources :: proc() -> (ok: bool) {
 	tex := sdl2.CreateTextureFromSurface(ctx.renderer, logo_surface.surf)
 	if tex == nil {
 		log.errorf("Couldn't convert image to texture.")
+    log.errorf(string(sdl2.GetError()))
 		return false
 	}
 	odin_logo := Texture_Asset{
