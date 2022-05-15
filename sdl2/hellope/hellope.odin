@@ -70,7 +70,7 @@ CTX :: struct {
 	window:        ^sdl2.Window,
 	surface:       ^sdl2.Surface,
 	renderer:      ^sdl2.Renderer,
-	textures:      [dynamic]Texture_Asset, 
+	textures:      [dynamic]Texture_Asset,
 
 	should_close:  bool,
 	app_start:     f64,
@@ -132,7 +132,7 @@ init_sdl :: proc() -> (ok: bool) {
 	return true
 }
 
-when USE_SDL2_IMAGE { 
+when USE_SDL2_IMAGE {
 	load_surface_from_image_file :: proc(image_path: string) -> (surface: ^Surface) {
 		path := strings.clone_to_cstring(image_path, context.temp_allocator)
 

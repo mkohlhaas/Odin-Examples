@@ -9,50 +9,42 @@ import "core:mem"
 import "core:c"
 import "core:runtime"
 
-WIDTH  :: 400
+WIDTH :: 400
 HEIGHT :: 400
-TITLE  :: cstring("Open Simplex 2 Texture!")
+TITLE :: cstring("Open Simplex 2 Texture!")
 
 // @note You might need to lower this to 3.3 depending on how old your graphics card is.
 GL_MAJOR_VERSION :: 4
 GL_MINOR_VERSION :: 1
 
 Adjust_Noise :: struct {
-	seed:       i64,
-	octaves:    i32,
+	seed:      i64,
+	octaves:   i32,
 	frequency: f64,
 }
 
 Vertices :: [16]f32
 
+
+/**
+
+0 - x,y
+1 - x, y + height
+2 - x + width, y
+3 - x + width, y + height
+
+0      2
+|-----/|
+|   /  |
+|  /   |
+|/-----|
+1      3
+
+**/
 create_vertices :: proc(x, y, width, height: f32) -> Vertices {
-
-	/**
-
-	0 - x,y
-	1 - x, y + height
-	2 - x + width, y
-	3 - x + width, y + height
-
-	0      2
-	|-----/|
-	|   /  |
-	|  /   |
-	|/-----|
-	1      3
-
-	**/
-
-	vertices: Vertices = {
-		x, y,                   0.0, 1.0,
-		x, y + height,          0.0, 0.0,
-		x + width, y,           1.0, 1.0,
-		x + width, y + height,  1.0, 0.0,
-	}
-
+	vertices: Vertices = { x, y, 0.0, 1.0, x, y + height, 0.0, 0.0, x + width, y, 1.0, 1.0, x + width, y + height, 1.0, 0.0, }
 	return vertices
 }
-
 
 WAVELENGTH :: 120
 Pixel :: [4]u8
@@ -74,18 +66,20 @@ create_texture_noise :: proc(texture_id: u32, adjust_noise: Adjust_Noise) {
 	pixels := mem.slice_data_cast([]Pixel, texture_data)
 
 	for x := 0; x < WIDTH; x += 1 {
-
 		for y := 0; y < HEIGHT; y += 1 {
-
 			using adjust_noise := adjust_noise
-
 			noise_val: f32
-
 			{
 
 				for i := 0; i < int(octaves); i += 1 {
-					noise_val += 0.4 * ((noise.noise_2d(seed, {f64(x) / frequency / 2, f64(y) / frequency / 2}) + 1.0) / 2.0)
-					noise_val += 0.6 * ((noise.noise_2d(seed, {f64(x) / frequency * 2 ,f64(y) / frequency * 2}) + 1.0) / 2.0)
+					noise_val += 0.4 * ((noise.noise_2d(seed, {
+		                 f64(x) / frequency / 2,
+		                 f64(y) / frequency / 2,
+	                 }) + 1.0) / 2.0)
+					noise_val += 0.6 * ((noise.noise_2d(seed, {
+		                 f64(x) / frequency * 2,
+		                 f64(y) / frequency * 2,
+	                 }) + 1.0) / 2.0)
 					frequency *= glsl.exp(frequency)
 				}
 				noise_val /= f32(octaves)
@@ -104,25 +98,25 @@ create_texture_noise :: proc(texture_id: u32, adjust_noise: Adjust_Noise) {
 			color := u8((noise_val) * 255.0)
 
 			switch {
-			case color <  20:
+			case color < 20:
 				// Water
-				noise_val =  0.75 + 0.25 * noise_at(seed, x, y)
-				pixels[0] = {u8( 51 * noise_val), u8( 81 * noise_val), u8(251 * noise_val), 255}
+				noise_val = 0.75 + 0.25 * noise_at(seed, x, y)
+				pixels[0] = {u8(51 * noise_val), u8(81 * noise_val), u8(251 * noise_val), 255}
 
-			case color <  30:
+			case color < 30:
 				// Sand
 				noise_val = 0.75 + 0.25 * noise_at(seed, x, y)
 				pixels[0] = {u8(251 * noise_val), u8(244 * noise_val), u8(189 * noise_val), 255}
 
-			case color <  60:
+			case color < 60:
 				// Grass
 				noise_val = 0.75 + 0.25 * noise_at(seed, x, y)
-				pixels[0] = {u8(124 * noise_val), u8(200 * noise_val), u8( 65 * noise_val), 255}
+				pixels[0] = {u8(124 * noise_val), u8(200 * noise_val), u8(65 * noise_val), 255}
 
-			case color <  90:
+			case color < 90:
 				// The forest
 				noise_val = 0.75 + 0.25 * noise_at(seed, x, y)
-				pixels[0] = {u8(124 * noise_val), u8(150 * noise_val), u8( 65 * noise_val), 255}
+				pixels[0] = {u8(124 * noise_val), u8(150 * noise_val), u8(65 * noise_val), 255}
 
 			case color < 120:
 				// The Mountain
@@ -142,7 +136,9 @@ create_texture_noise :: proc(texture_id: u32, adjust_noise: Adjust_Noise) {
 		}
 	}
 
-	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, i32(WIDTH), i32(HEIGHT), 0, gl.RGBA, gl.UNSIGNED_BYTE, &texture_data[0])
+	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, i32(
+			WIDTH,
+		), i32(HEIGHT), 0, gl.RGBA, gl.UNSIGNED_BYTE, &texture_data[0])
 }
 
 main :: proc() {
@@ -153,9 +149,9 @@ main :: proc() {
 	}
 
 	glfw.SetErrorCallback(proc "c" (error: c.int, description: cstring) {
-		context = runtime.default_context()
-		fmt.println(description)
-	})
+			context = runtime.default_context()
+			fmt.println(description)
+		})
 
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION)
 	glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR, GL_MINOR_VERSION)
@@ -209,10 +205,7 @@ main :: proc() {
 
 	**/
 
-	indices: [6]u32 = {
-		0, 1, 2,
-		2, 1, 3,
-	}
+	indices: [6]u32 = {0, 1, 2, 2, 1, 3}
 
 	gl.EnableVertexAttribArray(0)
 	gl.VertexAttribPointer(0, 2, gl.FLOAT, false, 4 * size_of(f32), 0)
@@ -220,17 +213,27 @@ main :: proc() {
 	gl.EnableVertexAttribArray(1)
 	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 4 * size_of(f32), size_of(f32) * 2)
 
-	gl.BufferData(gl.ARRAY_BUFFER,         len(vertices) * size_of(f32), raw_data(vertices[:]), gl.STATIC_DRAW)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)  * size_of(u32), raw_data(indices[:]),  gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(
+			vertices,
+		) *
+		size_of(
+			f32,
+		), raw_data(vertices[:]), gl.STATIC_DRAW)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(
+			indices,
+		) *
+		size_of(
+			u32,
+		), raw_data(indices[:]), gl.STATIC_DRAW)
 
-	program_id: u32; ok: bool
+	program_id: u32;ok: bool
 	if program_id, ok = gl.load_shaders("./shader.vert", "./shader.frag"); !ok {
 		fmt.println("Failed to load shaders.")
 		return
 	}
 	defer gl.DeleteProgram(program_id)
 
-	texture_id : u32
+	texture_id: u32
 	gl.GenTextures(1, &texture_id)
 	defer gl.DeleteTextures(1, &texture_id)
 
@@ -251,13 +254,13 @@ main :: proc() {
 
 	create_texture_noise(texture_id, adjust_noise)
 
-
 	for !glfw.WindowShouldClose(window_handle) {
 
 		// Process all incoming events like keyboard press, window resize, and etc.
 		glfw.PollEvents()
 
-		if glfw.GetKey(window_handle, glfw.KEY_COMMA) == glfw.PRESS && glfw.GetKey(window_handle, glfw.KEY_LEFT_SHIFT) == glfw.PRESS {
+		if glfw.GetKey(window_handle, glfw.KEY_COMMA) == glfw.PRESS && glfw.GetKey(window_handle,
+			   glfw.KEY_LEFT_SHIFT) == glfw.PRESS {
 			adjust_noise.frequency -= 5.0
 			adjust_noise.frequency = glsl.clamp(adjust_noise.frequency, 1, 9000)
 			create_texture_noise(texture_id, adjust_noise)
@@ -266,7 +269,8 @@ main :: proc() {
 			create_texture_noise(texture_id, adjust_noise)
 		}
 
-		if glfw.GetKey(window_handle, glfw.KEY_PERIOD) == glfw.PRESS && glfw.GetKey(window_handle, glfw.KEY_LEFT_SHIFT) == glfw.PRESS {
+		if glfw.GetKey(window_handle, glfw.KEY_PERIOD) == glfw.PRESS && glfw.GetKey(window_handle,
+			   glfw.KEY_LEFT_SHIFT) == glfw.PRESS {
 			adjust_noise.octaves -= 1.0
 			adjust_noise.octaves = glsl.clamp(adjust_noise.octaves, 1, 100)
 			create_texture_noise(texture_id, adjust_noise)
@@ -283,11 +287,13 @@ main :: proc() {
 		gl.BindTexture(gl.TEXTURE_2D, texture_id)
 		gl.ActiveTexture(gl.TEXTURE0)
 		gl.Uniform1i(gl.GetUniformLocation(program_id, "u_texture"), 0)
-		gl.UniformMatrix4fv(gl.GetUniformLocation(program_id, "u_projection"), 1, gl.FALSE, &ortho[0][0])
+		gl.UniformMatrix4fv(gl.GetUniformLocation(
+				program_id,
+				"u_projection",
+			), 1, gl.FALSE, &ortho[0][0])
 
 		gl.DrawElements(gl.TRIANGLES, i32(len(indices)), gl.UNSIGNED_INT, nil)
-
 		glfw.SwapBuffers(window_handle)
-
 	}
 }
+
