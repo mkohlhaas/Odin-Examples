@@ -13,7 +13,7 @@ main :: proc() {
 		return
 	}
 	defer delete(data) // Free the memory at the end
-	
+
 	// Parse the json file.
 	json_data, err := json.parse(data)
 	if err != .None {
@@ -22,29 +22,27 @@ main :: proc() {
 		return
 	}
 	defer json.destroy_value(json_data)
+	fmt.println(json_data)
 
 	// Access the Root Level Object
 	root := json_data.(json.Object)
+	fmt.println(root)
+	/* fmt.println(json_data["window_width"].(json.Float)) */
+	fmt.println(root["window_width"].(json.Float))
 
 	fmt.println("Root:")
-	fmt.println(
-		"window_width:",
-		root["window_width"],
-		"window_height:",
-		root["window_height"],
-		"window_title:",
-		root["window_title"],
-	)
+	fmt.println("window_width:", root["window_width"], "window_height:", root["window_height"], "window_title:", root["window_title"])
 	fmt.println("rendering_api:", root["rendering_api"])
 
 	// Store the value.
 	window_width := root["window_width"].(json.Float)
 	fmt.println("window_width:", window_width)
 
-	fmt.println("")
+	fmt.println()
 
 	fmt.println("Renderer Settings:")
 	renderer_settings := root["renderer_settings"].(json.Object)
+	fmt.println(renderer_settings)
 	fmt.println("msaa:", renderer_settings["msaa"])
 	fmt.println("depth_testing:", renderer_settings["depth_testing"])
 }

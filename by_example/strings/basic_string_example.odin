@@ -5,7 +5,7 @@ import "core:strings"
 
 /*
 	Strings in Odin are immutable.
-	 
+
 	Runes are unencoded code points like 0x96EA which get viewed as 雪.
 	When you construct a string with runes, they get encoded into a UTF-8 format and stored as an array of bytes.
 
@@ -33,7 +33,7 @@ main :: proc() {
 	} else {
 		fmt.println("name_1 contains the rune and is located at index:", name1_index)
 	}
-	
+
 	fmt.println("name1 is", strings.rune_count(name1), "rune(s) long.")
 
 	// Join the two names together separated by a comma!
@@ -51,7 +51,7 @@ main :: proc() {
 	defer delete(new_name)
 	fmt.println(new_name)
 
-	FILE_CONTENTS :: 
+	FILE_CONTENTS ::
 	`README.md
 	 .gitignore
 	 chapter_1.md`
@@ -74,5 +74,4 @@ main :: proc() {
 	command_tokens := strings.fields(command_string)
 	defer delete(command_tokens)
 	fmt.println(command_tokens)
-
 }

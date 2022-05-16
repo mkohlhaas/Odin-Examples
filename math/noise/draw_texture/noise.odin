@@ -42,7 +42,24 @@ Vertices :: [16]f32
 
 **/
 create_vertices :: proc(x, y, width, height: f32) -> Vertices {
-	vertices: Vertices = { x, y, 0.0, 1.0, x, y + height, 0.0, 0.0, x + width, y, 1.0, 1.0, x + width, y + height, 1.0, 0.0, }
+	vertices: Vertices = {
+		x,
+		y,
+		0.0,
+		1.0,
+		x,
+		y + height,
+		0.0,
+		0.0,
+		x + width,
+		y,
+		1.0,
+		1.0,
+		x + width,
+		y + height,
+		1.0,
+		0.0,
+	}
 	return vertices
 }
 
@@ -296,4 +313,3 @@ main :: proc() {
 		glfw.SwapBuffers(window_handle)
 	}
 }
-
